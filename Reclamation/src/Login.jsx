@@ -2,12 +2,47 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
+
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigateTo = useNavigate();
 
+  const checkTokenValidity = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      // Check if token exists
+      if (!token) {
+        throw new Error('Token not found in localStorage');
+      }
+  
+      const response = await fetch(`http://localhost:9090/checkToken?token=${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      console.log('Token validity response:', data);
+  
+      // Delete token from local storage after using it
+      localStorage.removeItem('token');
+  
+      return data; // This will be a boolean value
+    } catch (error) {
+      console.error('There was a problem checking token validity:', error);
+      return null;
+    }
+  };
+    
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,7 +73,14 @@ function Login() {
     useEffect(() => {
       const token = localStorage.getItem("token");
       if (token) {
-        navigateTo("/home");
+        const valid = checkTokenValidity(token)
+        if(valid){
+          navigateTo("/home");
+        }else{
+          localStorage.removeItem("tokem")
+          navigateTo("/Login")
+        }
+
       }
     }, [navigateTo]);
   return (

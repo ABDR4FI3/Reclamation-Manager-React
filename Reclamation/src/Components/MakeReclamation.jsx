@@ -20,13 +20,20 @@ function MakeReclamation(props) {
   }
   function SubmitHandler(event) {
     event.preventDefault();
-    const NoteData = {
+    /*const NoteData = {
       title: Title,
       sujet: Details,
       date: Date,
       etat: "pending",
-      userId: "1",
-    };
+    };*/
+    const NoteData ={
+      date: Date,
+      etat: "pending",
+      idDemande: null,
+      sujet: Details,
+      title: Title,
+      user:null,
+    }
 
     // Pass data to parent component
     props.onAddNote(NoteData);

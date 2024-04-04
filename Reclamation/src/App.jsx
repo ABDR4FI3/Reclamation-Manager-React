@@ -4,10 +4,54 @@ import Modal from "./Components/Modal";
 import MakeReclamation from "./Components/MakeReclamation";
 import Nav from "./Components/Nav";
 import Reclamation from "./Components/Reclamation";
-
+import { useNavigate } from "react-router-dom";
 function App() {
   const [visibility, setVisibility] = useState(false);
   const [reclamations, setReclamations] = useState([]);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const checkTokenValidity = async (token) => {
+      try {
+        const response = await fetch(`http://localhost:9090/checkToken?token=${token}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log("Token validity response:", data);
+
+        return data; // This will be a boolean value
+      } catch (error) {
+        console.error("There was a problem checking token validity:", error);
+        return false;
+      }
+    };
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      checkTokenValidity(token).then((valid) => {
+        console.log(valid)
+        if (valid) {
+          // Token is valid, navigate to home
+          //navigate("/home");
+        } else {
+          // Token is not valid, remove it and navigate to login
+          localStorage.removeItem("token");
+          navigate("/Login");
+        }
+      });
+    } else {
+      // Token not found in localStorage, navigate to login
+      navigate("/Login");
+    }
+  }, []);
 
   useEffect(() => {
     fetchDataFromApi();
@@ -22,8 +66,9 @@ function App() {
       if (!token) {
         throw new Error("Token not found in localStorage");
       }
+      console.log("bug")
   
-      const response = await fetch("http://localhost:9090/demandes", {
+      const response = await fetch("http://localhost:9090/reclamation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,14 +98,15 @@ function App() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        // Removed Authorization header as token is now sent as a parameter in the request body
       },
-      body: JSON.stringify(noteData),
+      body: JSON.stringify({ demande: noteData, token: token }), // Include the token as a parameter in the request body
     };
-
+  
     try {
+      console.log(noteData)
       const response = await fetch(
-        "http://localhost:9090/demandes/add",
+        "http://localhost:9090/demandes/add?token=" + token,
         requestOptions
       );
       if (!response.ok) {
@@ -73,6 +119,8 @@ function App() {
       console.error("There was a problem adding the note:", error);
     }
   };
+  
+  
 
   const switchVisibilityOn = () => {
     setVisibility(true);
