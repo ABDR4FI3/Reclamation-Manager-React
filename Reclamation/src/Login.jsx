@@ -65,6 +65,7 @@ function Login() {
       setError("");
       if (data.role == "admin") {
         console.log("admin");
+        navigateTo("/AdminHome")
       } else {
         navigateTo("/home");
       }

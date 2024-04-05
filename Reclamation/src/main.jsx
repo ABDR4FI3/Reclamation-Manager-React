@@ -4,11 +4,13 @@ import App from './App.jsx'
 import './index.css'
 import {createBrowserRouter , RouterProvider} from 'react-router-dom';
 import Login from './Login.jsx';
+import AdminHome from './AdminHome.jsx';
 
 const router = createBrowserRouter([
   {
     //default to try new features
     path:'/',
+    //element: <AdminHome/>
     element: <Login/>
   },
   {
@@ -18,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: '/Login',
     element:<Login/>
+  },
+  {
+    path: '/AdminHome',
+    element:<AdminHome/>
   }
 ]);
 
