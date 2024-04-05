@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
-
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,37 +10,40 @@ function Login() {
 
   const checkTokenValidity = async () => {
     try {
-      const token = localStorage.getItem('token');
-  
+      const token = localStorage.getItem("token");
+
       // Check if token exists
       if (!token) {
-        throw new Error('Token not found in localStorage');
+        throw new Error("Token not found in localStorage");
       }
-  
-      const response = await fetch(`http://localhost:9090/checkToken?token=${token}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-  
+
+      const response = await fetch(
+        `http://localhost:9090/checkToken?token=${token}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
-  
+
       const data = await response.json();
-      console.log('Token validity response:', data);
-  
+      console.log("Token validity response:", data);
+
       // Delete token from local storage after using it
-      localStorage.removeItem('token');
-  
+      localStorage.removeItem("token");
+
       return data; // This will be a boolean value
     } catch (error) {
-      console.error('There was a problem checking token validity:', error);
+      console.error("There was a problem checking token validity:", error);
       return null;
     }
   };
-    
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -62,32 +63,40 @@ function Login() {
       const data = await response.json();
       localStorage.setItem("token", data.token);
       setError("");
-
-      navigateTo("/home");
+      if (data.role == "admin") {
+        console.log("admin");
+      } else {
+        navigateTo("/home");
+      }
     } catch (error) {
       setError(error.message);
     }
   };
 
-    // Check if user is already authenticated (token present in localStorage)
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const valid = checkTokenValidity(token)
-        if(valid){
-          navigateTo("/home");
-        }else{
-          localStorage.removeItem("tokem")
-          navigateTo("/Login")
-        }
-
+  // Check if user is already authenticated (token present in localStorage)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const valid = checkTokenValidity(token);
+      if (valid) {
+        navigateTo("/home");
+      } else {
+        localStorage.removeItem("tokem");
+        navigateTo("/Login");
       }
-    }, [navigateTo]);
+    }
+  }, [navigateTo]);
   return (
     <div className="bg-slate-800 w-screen h-screen flex justify-center items-center">
-      <form className="max-w-sm mx-auto border-2 p-10 w-full" onSubmit={handleSubmit}>
+      <form
+        className="max-w-sm mx-auto border-2 p-10 w-full"
+        onSubmit={handleSubmit}
+      >
         <div className="mb-5">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <label
+            htmlFor="email"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
             Your email
           </label>
           <input
@@ -101,7 +110,10 @@ function Login() {
           />
         </div>
         <div className="mb-5">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <label
+            htmlFor="password"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
             Your password
           </label>
           <input
